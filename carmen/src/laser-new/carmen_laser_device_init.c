@@ -4,6 +4,7 @@
 #include "carmen_hokuyo.h"
 #include "carmen_sick.h"
 #include "carmen_s300.h"
+#include "carmen_slamtec.h"
 
 //array of laser devices
 int carmen_laser_devices_num;
@@ -26,6 +27,9 @@ carmen_laser_device_t* carmen_create_laser_instance(carmen_laser_laser_config_t*
   if (config->laser_type==SICK_LMS){
     device=carmen_create_sick_instance(config, laser_id);
   }
+  if (config->laser_type==SLAMTEC_RPLIDAR){
+    device=carmen_create_slamtec_instance(config, laser_id);
+  }
   if (device){
     device->config=*config;
     strcpy(device->device_name, filename);
@@ -38,5 +42,6 @@ int carmen_laser_register_devices(void){
   c+=carmen_init_sick_configs();
   c+=carmen_init_s300_configs();
   c+=carmen_init_hokuyo_configs();
+  c+=carmen_init_slamtec_configs();
   return c;
 }

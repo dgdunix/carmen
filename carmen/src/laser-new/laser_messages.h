@@ -50,6 +50,7 @@ typedef enum {
 	SIMULATED_LASER           = 3,
 	SICK_S300                 = 4,
 	HOKUYO_UTM                = 5,
+	SLAMTEC_RPLIDAR           = 6,
 	UNKNOWN_PROXIMITY_SENSOR  = 99
 } carmen_laser_laser_type_t;
 

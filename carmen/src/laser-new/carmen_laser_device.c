@@ -62,6 +62,8 @@ int carmen_laser_laser_message_check_configuration(carmen_laser_laser_config_t* 
     strcpy(type_string,"HOKUYO_URG");
   else if (config->laser_type == HOKUYO_UTM)
      strcpy(type_string,"HOKUYO_UTM");
+  else if (config->laser_type == SLAMTEC_RPLIDAR)
+     strcpy(type_string,"SLAMTEC_RPLIDAR");
   else if (config->laser_type == SIMULATED_LASER)
     strcpy(type_string,"SIMULATED_LASER");
   else

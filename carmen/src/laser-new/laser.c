@@ -7,8 +7,6 @@
 #include <pthread.h>
 #include <math.h>
 #include <errno.h>
-
-
 //#define MAX_REQUESTED_LASER_IDS 100
 
 volatile int carmen_laser_has_to_stop=0;
@@ -83,25 +81,29 @@ void sigquit_handler(int q __attribute__((unused))){
   carmen_laser_has_to_stop=1;
 }
 
-
+#if 1
 void* laser_fn (struct carmen_laser_device_t * device){
   int result=0;
+
   result=(*(device->f_start))(device);
   if (! result){
     carmen_laser_has_to_stop=1;
     return 0;
   }
+
   while (! carmen_laser_has_to_stop){
     result=(*(device->f_handle))(device);
   }
-  fprintf(stderr, "stopping\n");
+
   result=(*(device->f_stop))(device);
   if (! result){
     return 0;
   }
   return 0;
 }
+#endif
 
+#if 0
 void* calibrate_and_start_laser_fn (struct carmen_laser_device_t * device){
   int result=0;
   fprintf(stderr, "Timestamp calibration for laser %d, please wait a few seconds (100 scans)\n",
@@ -126,7 +128,7 @@ void* calibrate_and_start_laser_fn (struct carmen_laser_device_t * device){
   }
   return 0;
 }
-
+#endif
 
 int carmen_laser_create_device(int laser_id,
 			       carmen_laser_device_t** pdevice,
@@ -315,7 +317,7 @@ int carmen_laser_read_parameters(int argc, char **argv)
   carmen_test_alloc(resolution);
   fov            = calloc( num_laser_devices, sizeof(double) );
   carmen_test_alloc(fov);
-  laser_used_in_inifile      = calloc( num_laser_devices, sizeof(int) );
+  laser_used_in_inifile     = calloc( num_laser_devices, sizeof(int) );
   carmen_test_alloc(laser_used_in_inifile);
   laser_type     = calloc( num_laser_devices, sizeof(char*) );
   carmen_test_alloc(laser_type);
@@ -377,6 +379,23 @@ int carmen_laser_read_parameters(int argc, char **argv)
 		carmen_warn("the old laser driver if you want to use a PLS\n");
 		carmen_die("Laser aborted.\n");
 	}
+        else if ( !strcmp(laser_type[i], "RPLIDAR")) {
+
+                maxrange[i] = 6;
+
+                carmen_param_t laser_params[] = {
+                {"laser", var_res, CARMEN_PARAM_DOUBLE,              &(resolution[i]),     0, NULL},
+                {"laser", var_remission_mode, CARMEN_PARAM_STRING,   &(remission_mode_string[i]), 0, NULL},
+                {"laser", var_fov, CARMEN_PARAM_DOUBLE,              &(fov[i]),            0, NULL},
+                {"laser", var_baud, CARMEN_PARAM_INT,                &(baud[i]),           0, NULL},
+                /*        {"laser", var_range_mode, CARMEN_PARAM_STRING,       &(range_mode[i]),     0, NULL}, */
+                /*        {"laser", var_maxrange, CARMEN_PARAM_DOUBLE,         &(maxrange[i]),       0, NULL}, */
+                {"laser", var_flipped, CARMEN_PARAM_INT,             &(carmen_laser_flipped[i]),        0, NULL}};
+
+                carmen_param_install_params(argc, argv, laser_params,
+                                        sizeof(laser_params) /
+                                        sizeof(laser_params[0]));
+        }
 	else if ( !strcmp(laser_type[i], "lms") || !strcmp(laser_type[i], "LMS") ) {
 
 		maxrange[i] = 81.9;
@@ -473,6 +492,9 @@ int carmen_laser_read_parameters(int argc, char **argv)
         else if ( !strcmp(laser_type[i], "hokuyoutm") || !strcmp(laser_type[i], "HOKUYOUTM")) {
                 config.laser_type = HOKUYO_UTM;
         }
+        else if ( !strcmp(laser_type[i], "RPLIDAR")) {
+                config.laser_type = SLAMTEC_RPLIDAR;
+        }
 	else {
 	  carmen_die("ERROR: the parameter laser_type does not allow the value %s.\nUse lms, s300, pls, or hokuyourg", laser_type[i]);
 	}
@@ -561,6 +583,7 @@ int main(int argc, char **argv)
   static carmen_laser_laser_message msg;
   static float ranges[4096];
   static float remissions[4096];
+
   msg.range=ranges;
   msg.remission=remissions;
 
@@ -589,7 +612,7 @@ int main(int argc, char **argv)
     if (carmen_laser_pdevice[i]) {
       //starts the reading thread
       fprintf(stderr, "Info: Starting thread for laser %d\n", index_to_id(i) );
-      pthread_create (&(laser_thread[i]), NULL, (void*(*)(void*))calibrate_and_start_laser_fn, carmen_laser_pdevice[i]);
+      pthread_create (&(laser_thread[i]), NULL, (void*(*)(void*))laser_fn, carmen_laser_pdevice[i]);
     }
     else {
       fprintf(stderr, "Info: The laser %d is not used in this instance of laser\n", index_to_id(i) );
@@ -614,7 +637,7 @@ int main(int argc, char **argv)
     msg.config = m.config;
     msg.id = m.id;
 
-    //    fprintf(stderr, "r=%d\n", m.num_readings);
+        //fprintf(stderr, "r=%d\n", m.num_readings);
     if (m.num_readings){
       msg.range=ranges;
       memcpy(msg.range,m.range, m.num_readings*sizeof(float));
@@ -655,9 +678,9 @@ int main(int argc, char **argv)
     msg.timestamp = m.timestamp;
     msg.host = hostname;
 
-    if (msg.id>0)
+    if (msg.id>0) {
       carmen_laser_publish_laser_message(msg.id, &msg);
-
+    }
     if (c>0 && !(c%10)){
       double time=carmen_get_time();
       if (time-lastTime > 3.0) {
