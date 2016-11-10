@@ -49,7 +49,7 @@
 /*** Some pioneer internal constants.  I have them defined here since the ***/
 /*** outside world doesn't need to know about them.                       ***/
 #define ROOMBA_DELAY_MODECHANGE_MS      200
-#define ROOMBA_WHEEL_MAX_MM			500
+#define ROOMBA_WHEEL_MAX_MM			250
 
 #define ROOMBA_SONG_NUM_MAX			4
 #define ROOMBA_SONG_LENGTH_MAX		16

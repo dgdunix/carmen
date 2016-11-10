@@ -92,7 +92,7 @@ extern "C" {
 // Roomba Dimensions
 #define ROOMBA_BUMPER_X_OFFSET		0.050
 #define ROOMBA_DIAMETER				0.330
-#define ROOMBA_AXLE_LENGTH			0.227
+#define ROOMBA_AXLE_LENGTH			0.125
 
 #define ROOMBA_MAX_LIN_VEL_MM_S		500
 #define ROOMBA_MAX_ANG_VEL_RAD_S	2
