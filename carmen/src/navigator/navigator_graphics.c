@@ -869,7 +869,7 @@ static void draw_lasers(GtkMapViewer *the_map_view, double pixel_size)
     // finale: doesn't this assume a 180 fov?
     // angle = sensor_msg.pose.theta - M_PI_2 + 
     //  index / (float)(sensor_msg.num_readings - 1) * M_PI;
-    angle = sensor_msg.pose.theta - sensor_msg.config.fov / 2 + 
+    angle = sensor_msg.pose.theta +
       index / (float)(sensor_msg.num_readings - 1) * sensor_msg.config.fov;
     
 
