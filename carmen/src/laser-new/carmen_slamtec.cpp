@@ -184,10 +184,7 @@ int carmen_slamtec_handle(carmen_laser_device_t* device){
    gettimeofday(&timestamp, NULL);
    message.timestamp = timestamp.tv_sec + 1e-6*timestamp.tv_usec;
    for (int j=0; j < (int)count; j++){
-       message.range[j] = 0.001 * (nodes[j].distance_q2/4.0f); //reading.ranges[j];
-//            if (message.range[j] <= 0.02) {
-//                message.range[j] += device->config.maximum_range;
-//            }
+     message.range[j] = 0.001 * (nodes[(int)count-j-1].distance_q2/4.0f); //reading.ranges[j];
    }
    if (device->f_onreceive!=NULL)
      (*device->f_onreceive)(device, &message);
