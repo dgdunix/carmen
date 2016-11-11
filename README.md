@@ -19,3 +19,15 @@ make -j8
 ./robotgui &
 ./navigatorgui &
 </pre>
+
+## IPC test (Enter carmen/src/ipc)
+<pre>
+// make it
+make
+// start central to handle ipc , you can run on remote device
+./central
+// start test receiver 
+./test_receive host-name
+// start test generate ipc message
+./test_generate remote_ip host_name
+<pre>

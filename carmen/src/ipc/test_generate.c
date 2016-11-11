@@ -16,7 +16,7 @@ int main(int argc __attribute__ ((unused)),
   carmen_test_ipc_message msg;
   struct timeval tv;
   
-  IPC_connect(argv[0]);
+  IPC_connectModule(argv[0],argv[1]);
   
   IPC_defineMsg(CARMEN_TEST_IPC_NAME, IPC_VARIABLE_LENGTH,
 		CARMEN_TEST_IPC_FMT);
