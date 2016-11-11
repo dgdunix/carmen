@@ -49,6 +49,7 @@ static int allow_any_orientation = 0;
 static carmen_point_t requested_goal;
 static carmen_point_t intermediate_goal;
 static int goal_is_accessible;
+static int disable_DP=0;
 
 static carmen_traj_point_t robot;
 static carmen_planner_path_t path = {NULL, 0, 0};
@@ -205,7 +206,8 @@ static int find_nearest_free_point_to_goal(void)
   goal_x = carmen_round(robot.x / carmen_planner_map->config.resolution);
   goal_y = carmen_round(robot.y / carmen_planner_map->config.resolution);
 
-  carmen_conventional_dynamic_program(goal_x, goal_y);
+  if(!disable_DP)
+    carmen_conventional_dynamic_program(goal_x, goal_y);
 
   util_ptr = carmen_conventional_get_utility_ptr();
 
@@ -236,8 +238,8 @@ static int find_nearest_free_point_to_goal(void)
     carmen_warn("No accessible goal.\n");
     return 0;
   }
-
-  carmen_conventional_dynamic_program(closest_free.x, closest_free.y);
+  if(!disable_DP)
+    carmen_conventional_dynamic_program(closest_free.x, closest_free.y);
 
   carmen_map_to_world(&closest_free, &goal_world);
   intermediate_goal.x = goal_world.pose.x;
@@ -266,10 +268,13 @@ plan(carmen_navigator_config_t *nav_conf)
 			carmen_planner_map->config.resolution);
   goal_y = carmen_round(requested_goal.y / 
 			carmen_planner_map->config.resolution);
-
-  carmen_verbose("Doing DP to %d %d\n", goal_x, goal_y);
-  carmen_conventional_dynamic_program(goal_x , goal_y);
-
+  if(!disable_DP){
+    carmen_verbose("Doing DP to %d %d\n", goal_x, goal_y);
+    carmen_conventional_dynamic_program(goal_x , goal_y);
+    disable_DP = 1;
+  }else{
+    carmen_verbose("DP is disabled\n");
+  }
   carmen_trajectory_to_map(&robot, &map_pt, carmen_planner_map);
 
   if (carmen_conventional_get_utility(map_pt.x, map_pt.y) < 0) {
@@ -333,7 +338,7 @@ regenerate_trajectory(carmen_navigator_config_t *nav_conf)
     //	  carmen_verbose("Took %d sec %d msec\n", sec, msec);
     for (index = 0; index < path.length; index++) {
       path_point = carmen_planner_util_get_path_point(index, &path);
-      carmen_verbose("%.1f %.1f %.1f %.2f\n", path_point->x, 
+      carmen_verbose("x:%.1f y:%.1f d:%.1f v:%.2f\n", path_point->x, 
 		     path_point->y, 
 		     carmen_radians_to_degrees(path_point->theta), 
 		     path_point->t_vel);
@@ -385,7 +390,7 @@ carmen_planner_update_goal(carmen_point_p new_goal, int any_orientation,
   requested_goal = *new_goal;
   allow_any_orientation = any_orientation;
   goal_set = 1;
-
+  disable_DP = 0;
   plan(nav_conf);
       
   regenerate_trajectory(nav_conf);
