@@ -383,10 +383,10 @@ laser_frontlaser_handler(void)
   if (max_velocity >= 0 && max_velocity < CARMEN_ROBOT_MIN_ALLOWED_VELOCITY)
     max_velocity = 0.0;
   
-  if(max_velocity <= 0.0 && carmen_robot_latest_odometry.tv > 0.0)    {
-    fprintf(stderr, "S");
-    carmen_robot_stop_robot(CARMEN_ROBOT_ALLOW_ROTATE);
-  }
+  //if(max_velocity <= 0.0 && carmen_robot_latest_odometry.tv > 0.0)    {
+  //  fprintf(stderr, "SArc");
+  //  carmen_robot_stop_robot(CARMEN_ROBOT_ALLOW_ROTATE);
+  //}
   
   max_front_velocity = max_velocity;
 }
