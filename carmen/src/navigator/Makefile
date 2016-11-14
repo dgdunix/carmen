@@ -16,9 +16,9 @@ PUBLIC_INCLUDES = navigator_messages.h navigator_interface.h navigator.h \
 	planner_interface.h
 PUBLIC_LIBRARIES =  libnavigator_interface.a libconventional.a
 
-PUBLIC_BINARIES = navigator
+PUBLIC_BINARIES = navigator navicon
 
-TARGETS =  libnavigator_interface.a navigator navigator_test random_nav libconventional.a
+TARGETS =  libnavigator_interface.a navigator navigator_test random_nav libconventional.a navicon
 
 PUBLIC_LIBRARIES_SO = libnavigator_interface.so
 ifndef NO_PYTHON
@@ -52,6 +52,8 @@ libnavigator_interface.so.1: navigator_interface.o
 
 navigatorgui: navigator_panel.o navigator_graphics.o \
 	libnavigator_interface.a 
+
+navicon: navicon.o libnavigator_interface.a
 
 libconventional.a: 	conventional.o planner.o trajectory.o map_modify.o
 
